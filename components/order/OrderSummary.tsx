@@ -1,9 +1,11 @@
 "use client"
 import { useStore } from '@/src/store'
 import ProductDetails from './ProductDetails'
+import {toast} from "react-toastify"
 import { useMemo } from 'react'
 import { formatCurrency } from '@/src/utils'
 import { createOrder } from '@/actions/create-order-actions'
+import { OrderSchema } from '@/src/schema'
 
 
 const OrderSummary = () => {
@@ -12,7 +14,17 @@ const OrderSummary = () => {
   const total = useMemo(()=> order.reduce((total, item)=> total + (item.quantity * item.price), 0), [order])
 
   const handleCreateOrder = (formData: FormData) =>{
+    const data = {
+      name: formData.get("name")
+    }
 
+    const result = OrderSchema.safeParse(data)
+    if(!result.success){
+      result.error.issues.forEach((issue)=> {
+        toast.error(issue.message)
+      })
+    }
+    return
     createOrder()
   }
 
